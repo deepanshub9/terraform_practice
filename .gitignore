@@ -1,0 +1,36 @@
+# Terraform files to ignore
+**/.terraform/
+**/.terraform.lock.hcl
+**/terraform.tfstate
+**/terraform.tfstate.backup
+**/terraform.tfstate.*.backup
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+
+# Ignore Terraform state and provider files
+*.zip
+*.so
+*.pyc
+*.pyo
+*.exe
+*.dll
+*.dylib
+*.bin
+*.tar
+*.gz
+*.tgz
+*.7z
+*.rar
+*.lock.hcl
+.aws/
+dist/
+.terraform/
