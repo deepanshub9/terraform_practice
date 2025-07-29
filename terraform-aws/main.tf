@@ -22,3 +22,17 @@ resource "aws_instance" "aws_ec2_test" {
   }
 }
 
+output "instance_pub_ip" {
+                value = aws_instance.aws_ec2_test[*].public_ip
+ }
+
+
+
+resource "aws_s3_bucket" "b" {
+ bucket = "deepanshu-tf-test-bucket"
+ tags = {
+ Name = "deepanshut-train-bucket"
+ Environment = "Dev"
+
+}
+} 
