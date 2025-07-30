@@ -34,3 +34,13 @@ Thumbs.db
 .aws/
 dist/
 .terraform/
+
+# AWS CLI and large files
+awscliv2.zip
+awscli-bundle.zip
+
+# Vim files
+.viminfo
+
+# Large terraform provider binaries
+**/terraform-provider-*
