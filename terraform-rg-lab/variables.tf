@@ -31,3 +31,18 @@ variable "nsg_name" {
   description = "Network Security Group Name"
   type        = string
 }
+
+variable "storage_account_name" {
+  description = "Storage Account Name"
+  type        = string
+}
+
+variable "tags" {
+  description = "Common tags"
+  type        = map(string)
+  default = {
+    Environment = "Dev"
+    Owner       = "Deepanshu"
+    ManagedBy   = "Terraform"
+  }
+}

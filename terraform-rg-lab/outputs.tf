@@ -23,3 +23,6 @@ output "subnet_id" {
 output "nsg_name" {
   value = azurerm_network_security_group.app_nsg.name
 }
+output "storage_account_name" {
+  value = azurerm_storage_account.storage.name
+}

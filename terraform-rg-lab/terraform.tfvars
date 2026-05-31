@@ -14,3 +14,5 @@ subnet_prefixes = [
   "10.0.1.0/24"
 ]
 nsg_name = "nsg-app"
+
+storage_account_name = "stdeepterraformdev001"
