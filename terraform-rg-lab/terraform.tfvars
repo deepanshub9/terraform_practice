@@ -22,3 +22,5 @@ private_endpoint_subnet_name = "subnet-private-endpoint"
 private_endpoint_subnet_prefix = [
   "10.0.2.0/24"
 ]
+
+key_vault_name = "kvdeepanshudev001"

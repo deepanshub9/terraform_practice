@@ -1,3 +1,4 @@
+data "azurerm_client_config" "current" {}
 resource "azurerm_resource_group" "rg" {
   name     = var.resource_group_name
   location = var.location
@@ -137,4 +138,64 @@ resource "azurerm_private_dns_zone_virtual_network_link" "storage_dns_link" {
 
   registration_enabled = false
 
+}
+resource "azurerm_key_vault" "kv" {
+
+  name = var.key_vault_name
+
+  location = azurerm_resource_group.rg.location
+
+  resource_group_name = azurerm_resource_group.rg.name
+
+  tenant_id = data.azurerm_client_config.current.tenant_id
+
+  sku_name = "standard"
+
+  purge_protection_enabled = true
+
+  soft_delete_retention_days = 7
+
+  tags = var.tags
+}
+
+resource "azurerm_key_vault_access_policy" "terraform_user" {
+
+  key_vault_id = azurerm_key_vault.kv.id
+
+  tenant_id = data.azurerm_client_config.current.tenant_id
+
+  object_id = data.azurerm_client_config.current.object_id
+
+  secret_permissions = [
+    "Get",
+    "List",
+    "Set",
+    "Delete",
+    "Recover",
+    "Backup",
+    "Restore"
+  ]
+}
+
+resource "azurerm_key_vault_secret" "sql_password" {
+
+  name = "sql-admin-password"
+
+  value = "MySecurePassword123!"
+
+  key_vault_id = azurerm_key_vault.kv.id
+
+  depends_on = [
+    azurerm_key_vault_access_policy.terraform_user
+  ]
+}
+data "azurerm_key_vault_secret" "sql_password" {
+
+  name = "sql-admin-password"
+
+  key_vault_id = azurerm_key_vault.kv.id
+
+  depends_on = [
+    azurerm_key_vault_secret.sql_password
+  ]
 }
