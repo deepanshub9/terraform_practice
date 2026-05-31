@@ -66,3 +66,38 @@ resource "azurerm_storage_account" "storage" {
   account_replication_type = "LRS"
   tags                     = var.tags
 }
+resource "azurerm_subnet" "private_endpoint_subnet" {
+
+  name = var.private_endpoint_subnet_name
+
+  resource_group_name = azurerm_resource_group.rg.name
+
+  virtual_network_name = azurerm_virtual_network.vnet.name
+
+  address_prefixes = var.private_endpoint_subnet_prefix
+
+}
+resource "azurerm_private_endpoint" "storage_pe" {
+
+  name = "pe-storage"
+
+  location = azurerm_resource_group.rg.location
+
+  resource_group_name = azurerm_resource_group.rg.name
+
+  subnet_id = azurerm_subnet.private_endpoint_subnet.id
+
+  private_service_connection {
+
+    name = "storage-connection"
+
+    private_connection_resource_id = azurerm_storage_account.storage.id
+
+    subresource_names = ["blob"]
+
+    is_manual_connection = false
+
+  }
+
+  tags = var.tags
+}

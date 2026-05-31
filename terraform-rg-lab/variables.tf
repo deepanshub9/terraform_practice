@@ -46,3 +46,12 @@ variable "tags" {
     ManagedBy   = "Terraform"
   }
 }
+variable "private_endpoint_subnet_name" {
+  description = "Private Endpoint Subnet Name"
+  type        = string
+}
+
+variable "private_endpoint_subnet_prefix" {
+  description = "Private Endpoint Subnet CIDR"
+  type        = list(string)
+}

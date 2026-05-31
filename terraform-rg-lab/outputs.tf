@@ -26,3 +26,10 @@ output "nsg_name" {
 output "storage_account_name" {
   value = azurerm_storage_account.storage.name
 }
+
+output "storage_account_id" {
+  value = azurerm_storage_account.storage.id
+}
+output "private_endpoint_id" {
+  value = azurerm_private_endpoint.storage_pe.id
+}

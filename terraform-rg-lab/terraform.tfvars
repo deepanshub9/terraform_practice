@@ -16,3 +16,9 @@ subnet_prefixes = [
 nsg_name = "nsg-app"
 
 storage_account_name = "stdeepterraformdev001"
+
+private_endpoint_subnet_name = "subnet-private-endpoint"
+
+private_endpoint_subnet_prefix = [
+  "10.0.2.0/24"
+]
