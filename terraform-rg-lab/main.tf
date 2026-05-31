@@ -66,6 +66,8 @@ resource "azurerm_storage_account" "storage" {
   account_replication_type = "LRS"
   tags                     = var.tags
 }
+
+
 resource "azurerm_subnet" "private_endpoint_subnet" {
 
   name = var.private_endpoint_subnet_name
@@ -77,6 +79,8 @@ resource "azurerm_subnet" "private_endpoint_subnet" {
   address_prefixes = var.private_endpoint_subnet_prefix
 
 }
+
+
 resource "azurerm_private_endpoint" "storage_pe" {
 
   name = "pe-storage"
@@ -89,7 +93,7 @@ resource "azurerm_private_endpoint" "storage_pe" {
 
   private_service_connection {
 
-    name = "storage-connection"
+    name = "storage-private-connection"
 
     private_connection_resource_id = azurerm_storage_account.storage.id
 
@@ -99,5 +103,38 @@ resource "azurerm_private_endpoint" "storage_pe" {
 
   }
 
+  private_dns_zone_group {
+
+    name = "storage-zone-group"
+
+    private_dns_zone_ids = [
+      azurerm_private_dns_zone.storage_dns.id
+    ]
+  }
+
   tags = var.tags
+}
+
+resource "azurerm_private_dns_zone" "storage_dns" {
+
+  name = "privatelink.blob.core.windows.net"
+
+  resource_group_name = azurerm_resource_group.rg.name
+
+  tags = var.tags
+
+}
+
+resource "azurerm_private_dns_zone_virtual_network_link" "storage_dns_link" {
+
+  name = "storage-dns-link"
+
+  resource_group_name = azurerm_resource_group.rg.name
+
+  private_dns_zone_name = azurerm_private_dns_zone.storage_dns.name
+
+  virtual_network_id = azurerm_virtual_network.vnet.id
+
+  registration_enabled = false
+
 }

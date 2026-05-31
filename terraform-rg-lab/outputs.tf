@@ -33,3 +33,8 @@ output "storage_account_id" {
 output "private_endpoint_id" {
   value = azurerm_private_endpoint.storage_pe.id
 }
+output "private_dns_zone_name" {
+  value = azurerm_private_dns_zone.storage_dns.name
+
+}
+
