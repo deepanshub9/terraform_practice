@@ -60,3 +60,7 @@ variable "key_vault_name" {
   type        = string
 }
 
+variable "logic_app_name" {
+  description = "Logic App Name"
+  type        = string
+}

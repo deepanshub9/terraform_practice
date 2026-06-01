@@ -199,3 +199,22 @@ data "azurerm_key_vault_secret" "sql_password" {
     azurerm_key_vault_secret.sql_password
   ]
 }
+resource "azurerm_logic_app_workflow" "logicapp" {
+
+  name = var.logic_app_name
+
+  location = azurerm_resource_group.rg.location
+
+  resource_group_name = azurerm_resource_group.rg.name
+
+  tags = var.tags
+}
+
+resource "azurerm_storage_container" "reports" {
+
+  name = "reports"
+
+  storage_account_id = azurerm_storage_account.storage.id
+
+  container_access_type = "private"
+}

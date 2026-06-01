@@ -24,3 +24,5 @@ private_endpoint_subnet_prefix = [
 ]
 
 key_vault_name = "kvdeepanshudev001"
+
+logic_app_name = "logicapp-storage-monitor"
