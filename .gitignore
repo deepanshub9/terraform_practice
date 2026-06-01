@@ -28,6 +28,9 @@ Thumbs.db
 # Environment variables
 .env
 .env.local
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
 
 # Local dev files
 *.log

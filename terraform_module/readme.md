@@ -1,0 +1,1 @@
+## Terraform modules are reusable, self-contained packages of Terraform configurations that can be shared and used across different projects. They allow you to encapsulate and organize your infrastructure code, making it easier to manage and maintain.
