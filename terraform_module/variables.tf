@@ -22,6 +22,18 @@ variable "subnet_prefixes" {
   type = list(string)
 }
 
+variable "private_endpoint_subnet_name" {
+  type = string
+}
+
+variable "private_endpoint_subnet_prefixes" {
+  type = list(string)
+}
+
+variable "route_table_name" {
+  type = string
+}
+
 variable "tags" {
   description = "Common tags"
   type        = map(string)

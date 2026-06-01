@@ -5,12 +5,15 @@ module "resource_group" {
 }
 
 module "vnet" {
-  source              = "./modules/vnet"
-  vnet_name           = var.vnet_name
-  address_space       = var.address_space
-  subnet_name         = var.subnet_name
-  subnet_prefixes     = var.subnet_prefixes
-  location            = var.location
-  resource_group_name = module.resource_group.rg_name
-  tags                = var.tags
+  source                           = "./modules/vnet"
+  vnet_name                        = var.vnet_name
+  address_space                    = var.address_space
+  subnet_name                      = var.subnet_name
+  subnet_prefixes                  = var.subnet_prefixes
+  private_endpoint_subnet_name     = var.private_endpoint_subnet_name
+  private_endpoint_subnet_prefixes = var.private_endpoint_subnet_prefixes
+  route_table_name                 = var.route_table_name
+  location                         = var.location
+  resource_group_name              = module.resource_group.rg_name
+  tags                             = var.tags
 }
