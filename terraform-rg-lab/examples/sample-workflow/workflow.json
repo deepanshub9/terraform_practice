@@ -1,0 +1,54 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2016-06-01/Microsoft.Logic.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {},
+  "triggers": {
+    "manual": {
+      "type": "Request",
+      "kind": "Http",
+      "inputs": {
+        "schema": {
+          "type": "object",
+          "properties": {
+            "correlationId": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "correlationId",
+            "message"
+          ]
+        }
+      }
+    }
+  },
+  "actions": {
+    "Build_bank_audit_response": {
+      "type": "Compose",
+      "inputs": {
+        "status": "accepted",
+        "correlationId": "@triggerBody()?['correlationId']",
+        "receivedAt": "@utcNow()",
+        "message": "@triggerBody()?['message']"
+      },
+      "runAfter": {}
+    },
+    "Response": {
+      "type": "Response",
+      "kind": "Http",
+      "inputs": {
+        "statusCode": 202,
+        "body": "@outputs('Build_bank_audit_response')"
+      },
+      "runAfter": {
+        "Build_bank_audit_response": [
+          "Succeeded"
+        ]
+      }
+    }
+  },
+  "outputs": {}
+}

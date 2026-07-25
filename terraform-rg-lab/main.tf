@@ -1,220 +1,95 @@
-data "azurerm_client_config" "current" {}
-resource "azurerm_resource_group" "rg" {
-  name     = var.resource_group_name
-  location = var.location
-}
-resource "azurerm_virtual_network" "vnet" {
-  name                = var.vnet_name
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  address_space       = var.address_space
-}
-resource "azurerm_subnet" "app_subnet" {
-  name                 = var.subnet_name
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = var.subnet_prefixes
-}
-resource "azurerm_network_security_group" "app_nsg" {
+# ==============================================================================
+# RG Lab - Root Module Configuration
+# ==============================================================================
+# This is the main orchestration file that uses all modular components.
+# All resources are organized by module type (Resource Group, Storage Account,
+# Network, Key Vault, Logic App) for better maintainability and reusability.
+# ==============================================================================
 
-  name = var.nsg_name
+# Resource Group Module - Foundation for all resources
+module "resource_group" {
+  source = "./modules/resource_group"
 
-  location = azurerm_resource_group.rg.location
-
-  resource_group_name = azurerm_resource_group.rg.name
-
-}
-resource "azurerm_network_security_rule" "allow_https" {
-
-  name = "Allow-HTTPS"
-
-  priority = 100
-
-  direction = "Inbound"
-
-  access = "Allow"
-
-  protocol = "Tcp"
-
-  source_port_range = "*"
-
-  destination_port_range = "443"
-
-  source_address_prefix = "*"
-
-  destination_address_prefix = "*"
-
-  resource_group_name = azurerm_resource_group.rg.name
-
-  network_security_group_name = azurerm_network_security_group.app_nsg.name
-
-}
-resource "azurerm_subnet_network_security_group_association" "app_assoc" {
-
-  subnet_id = azurerm_subnet.app_subnet.id
-
-  network_security_group_id = azurerm_network_security_group.app_nsg.id
-
+  resource_group_name = var.resource_group_name
+  location            = var.location
+  tags                = local.common_tags
 }
 
+# Virtual Network Module - Network infrastructure with subnets
+module "vnet" {
+  source = "./modules/network/vnet"
 
-resource "azurerm_storage_account" "storage" {
-  name                = var.storage_account_name
-  resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_resource_group.rg.location
-
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-  tags                     = var.tags
+  vnet_name                      = var.vnet_name
+  address_space                  = var.address_space
+  location                       = var.location
+  resource_group_name            = module.resource_group.resource_group_name
+  subnet_name                    = var.subnet_name
+  subnet_prefixes                = var.subnet_prefixes
+  private_endpoint_subnet_name   = var.private_endpoint_subnet_name
+  private_endpoint_subnet_prefix = var.private_endpoint_subnet_prefix
+  tags                           = local.common_tags
 }
 
+# Network Security Group Module - Firewall rules and network traffic control
+module "nsg" {
+  source = "./modules/network/nsg"
 
-resource "azurerm_subnet" "private_endpoint_subnet" {
-
-  name = var.private_endpoint_subnet_name
-
-  resource_group_name = azurerm_resource_group.rg.name
-
-  virtual_network_name = azurerm_virtual_network.vnet.name
-
-  address_prefixes = var.private_endpoint_subnet_prefix
-
+  nsg_name            = var.nsg_name
+  location            = var.location
+  resource_group_name = module.resource_group.resource_group_name
+  subnet_id           = module.vnet.app_subnet_id
+  tags                = local.common_tags
 }
 
+# Storage Account Module - Cloud data storage
+module "storage_account" {
+  source = "./modules/storage_account"
 
-resource "azurerm_private_endpoint" "storage_pe" {
-
-  name = "pe-storage"
-
-  location = azurerm_resource_group.rg.location
-
-  resource_group_name = azurerm_resource_group.rg.name
-
-  subnet_id = azurerm_subnet.private_endpoint_subnet.id
-
-  private_service_connection {
-
-    name = "storage-private-connection"
-
-    private_connection_resource_id = azurerm_storage_account.storage.id
-
-    subresource_names = ["blob"]
-
-    is_manual_connection = false
-
-  }
-
-  private_dns_zone_group {
-
-    name = "storage-zone-group"
-
-    private_dns_zone_ids = [
-      azurerm_private_dns_zone.storage_dns.id
-    ]
-  }
-
-  tags = var.tags
+  storage_account_name = var.storage_account_name
+  resource_group_name  = module.resource_group.resource_group_name
+  location             = var.location
+  tags                 = local.common_tags
 }
 
-resource "azurerm_private_dns_zone" "storage_dns" {
+# Private Endpoint Module - Secure connectivity to storage
+module "private_endpoint" {
+  source = "./modules/network/private_endpoint"
 
-  name = "privatelink.blob.core.windows.net"
-
-  resource_group_name = azurerm_resource_group.rg.name
-
-  tags = var.tags
-
+  resource_group_name = module.resource_group.resource_group_name
+  location            = var.location
+  vnet_id             = module.vnet.vnet_id
+  subnet_id           = module.vnet.private_endpoint_subnet_id
+  storage_account_id  = module.storage_account.storage_account_id
+  tags                = local.common_tags
 }
 
-resource "azurerm_private_dns_zone_virtual_network_link" "storage_dns_link" {
+# Key Vault Module - Secrets and credentials management
+module "key_vault" {
+  source = "./modules/keyvault"
 
-  name = "storage-dns-link"
-
-  resource_group_name = azurerm_resource_group.rg.name
-
-  private_dns_zone_name = azurerm_private_dns_zone.storage_dns.name
-
-  virtual_network_id = azurerm_virtual_network.vnet.id
-
-  registration_enabled = false
-
-}
-resource "azurerm_key_vault" "kv" {
-
-  name = var.key_vault_name
-
-  location = azurerm_resource_group.rg.location
-
-  resource_group_name = azurerm_resource_group.rg.name
-
-  tenant_id = data.azurerm_client_config.current.tenant_id
-
-  sku_name = "standard"
-
-  purge_protection_enabled = true
-
-  soft_delete_retention_days = 7
-
-  tags = var.tags
+  key_vault_name      = var.key_vault_name
+  location            = var.location
+  resource_group_name = module.resource_group.resource_group_name
+  tags                = local.common_tags
 }
 
-resource "azurerm_key_vault_access_policy" "terraform_user" {
+# Logic App Module - Workflow automation
+module "logic_app" {
+  source = "./modules/logicapp"
 
-  key_vault_id = azurerm_key_vault.kv.id
-
-  tenant_id = data.azurerm_client_config.current.tenant_id
-
-  object_id = data.azurerm_client_config.current.object_id
-
-  secret_permissions = [
-    "Get",
-    "List",
-    "Set",
-    "Delete",
-    "Recover",
-    "Backup",
-    "Restore"
-  ]
+  logic_app_name      = var.logic_app_name
+  location            = var.location
+  resource_group_name = module.resource_group.resource_group_name
+  tags                = local.common_tags
 }
 
-resource "azurerm_key_vault_secret" "sql_password" {
-
-  name = "sql-admin-password"
-
-  value = "MySecurePassword123!"
-
-  key_vault_id = azurerm_key_vault.kv.id
-
-  depends_on = [
-    azurerm_key_vault_access_policy.terraform_user
-  ]
-}
-data "azurerm_key_vault_secret" "sql_password" {
-
-  name = "sql-admin-password"
-
-  key_vault_id = azurerm_key_vault.kv.id
-
-  depends_on = [
-    azurerm_key_vault_secret.sql_password
-  ]
-}
-resource "azurerm_logic_app_workflow" "logicapp" {
-
-  name = var.logic_app_name
-
-  location = azurerm_resource_group.rg.location
-
-  resource_group_name = azurerm_resource_group.rg.name
-
-  tags = var.tags
-}
-
-resource "azurerm_storage_container" "reports" {
-
-  name = "reports"
-
-  storage_account_id = azurerm_storage_account.storage.id
-
-  container_access_type = "private"
+# Common tags applied to all resources
+locals {
+  common_tags = merge(
+    var.tags,
+    {
+      Environment = "Lab"
+      ManagedBy   = "Terraform"
+    }
+  )
 }

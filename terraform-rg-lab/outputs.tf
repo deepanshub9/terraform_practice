@@ -1,47 +1,77 @@
+# ==============================================================================
+# RG Lab - Output Variables
+# ==============================================================================
+# These outputs expose all resource information created by the modular
+# configuration for external consumption and reference.
+# ==============================================================================
+
+# Resource Group Outputs
 output "resource_group_name" {
-  value = azurerm_resource_group.rg.name
+  value       = module.resource_group.resource_group_name
+  description = "The name of the Resource Group"
 }
 
 output "resource_group_id" {
-  value = azurerm_resource_group.rg.id
+  value       = module.resource_group.resource_group_id
+  description = "The ID of the Resource Group"
 }
 
+# Virtual Network Outputs
 output "vnet_name" {
-  value = azurerm_virtual_network.vnet.name
+  value       = module.vnet.vnet_name
+  description = "The name of the Virtual Network"
 }
 
 output "vnet_id" {
-  value = azurerm_virtual_network.vnet.id
+  value       = module.vnet.vnet_id
+  description = "The ID of the Virtual Network"
 }
+
 output "subnet_name" {
-  value = azurerm_subnet.app_subnet.name
+  value       = module.vnet.app_subnet_id
+  description = "The ID of the Application Subnet"
 }
 
 output "subnet_id" {
-  value = azurerm_subnet.app_subnet.id
+  value       = module.vnet.app_subnet_id
+  description = "The ID of the Application Subnet"
 }
+
+# Network Security Group Outputs
 output "nsg_name" {
-  value = azurerm_network_security_group.app_nsg.name
+  value       = module.nsg.nsg_name
+  description = "The name of the Network Security Group"
 }
+
+# Storage Account Outputs
 output "storage_account_name" {
-  value = azurerm_storage_account.storage.name
+  value       = module.storage_account.storage_account_name
+  description = "The name of the Storage Account"
 }
 
 output "storage_account_id" {
-  value = azurerm_storage_account.storage.id
+  value       = module.storage_account.storage_account_id
+  description = "The ID of the Storage Account"
 }
+
+# Private Endpoint Outputs
 output "private_endpoint_id" {
-  value = azurerm_private_endpoint.storage_pe.id
+  value       = module.private_endpoint.private_endpoint_id
+  description = "The ID of the Private Endpoint"
 }
+
 output "private_dns_zone_name" {
-  value = azurerm_private_dns_zone.storage_dns.name
-
+  value       = module.private_endpoint.private_dns_zone_name
+  description = "The name of the Private DNS Zone"
 }
 
+# Key Vault Outputs
 output "key_vault_name" {
-  value = azurerm_key_vault.kv.name
+  value       = module.key_vault.key_vault_name
+  description = "The name of the Key Vault"
 }
 
 output "key_vault_id" {
-  value = azurerm_key_vault.kv.id
+  value       = module.key_vault.key_vault_id
+  description = "The ID of the Key Vault"
 }
