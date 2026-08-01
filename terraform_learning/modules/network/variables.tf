@@ -13,3 +13,15 @@ variable "location" {
 variable "address_space" {
   type = list(string)
 }
+
+variable "subnets" {
+
+  description = "Subnet configuration"
+
+  type = map(object({
+
+    address_prefixes = list(string)
+
+  }))
+
+}
