@@ -22,3 +22,16 @@ module "network" {
   subnets = var.subnets
 
 }
+module "nsg" {
+
+  source = "./modules/nsg"
+
+  resource_group_name = module.resource_group.resource_group_name
+
+  location = var.location
+
+  nsgs = var.nsgs
+
+  subnet_ids = module.network.subnet_ids
+
+}

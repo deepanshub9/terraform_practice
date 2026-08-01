@@ -19,3 +19,12 @@ variable "subnets" {
     address_prefixes = list(string)
   }))
 }
+variable "nsgs" {
+
+  type = map(object({
+
+    subnet_name = string
+
+  }))
+
+}
